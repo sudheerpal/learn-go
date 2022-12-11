@@ -121,3 +121,13 @@ func Logout(c *fiber.Ctx) error {
 	})
 
 }
+
+func AllUsers(c *fiber.Ctx) error {
+
+	var users []models.User
+
+	database.DB.Find(&users)
+
+	return c.JSON(users)
+
+}
