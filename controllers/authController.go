@@ -8,10 +8,9 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/sudheerpal/learn-go/database"
 	"github.com/sudheerpal/learn-go/models"
+	"github.com/sudheerpal/learn-go/utility"
 	"golang.org/x/crypto/bcrypt"
 )
-
-const secretKey = "secret"
 
 func Hello(c *fiber.Ctx) error {
 	return c.SendString("Hello, World 👋!")
@@ -64,7 +63,7 @@ func Login(c *fiber.Ctx) error {
 		ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 	})
 
-	token, err := claims.SignedString([]byte(secretKey))
+	token, err := claims.SignedString([]byte(utility.SecretKey))
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
@@ -85,22 +84,8 @@ func Login(c *fiber.Ctx) error {
 }
 
 func User(c *fiber.Ctx) error {
-	cookie := c.Cookies("jwt")
-
-	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil
-	})
-
-	if err != nil {
-		c.Status(fiber.StatusUnauthorized)
-		return c.JSON(fiber.Map{
-			"message": "unauthenticated",
-		})
-	}
-
-	claims := token.Claims.(*jwt.StandardClaims)
 	var user models.User
-	database.DB.Where("Id=?", claims.Issuer).First(&user)
+	database.DB.Where("Id=?", c.Locals("Issuer")).First(&user)
 
 	return c.JSON(user)
 

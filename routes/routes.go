@@ -2,14 +2,15 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/sudheerpal/learn-go/controllers"
+	"github.com/sudheerpal/learn-go/middlewares"
 )
 
 func Setup(app *fiber.App) {
 
-	api := app.Group("/api", logger.New())
+	api := app.Group("/api")
 
+	// test the system
 	api.Get("/", controllers.Hello)
 
 	// Auth
@@ -20,10 +21,11 @@ func Setup(app *fiber.App) {
 	//User
 	user := api.Group("/user")
 	user.Post("/register", controllers.Register)
-	user.Get("/get", controllers.User)
+	user.Get("/get", middlewares.Protected, controllers.User)
 	user.Get("/all", controllers.AllUsers)
 
 	//Lead
-	// lead := api.Group("/lead")
+	lead := api.Group("/lead", middlewares.Protected)
+	lead.Get("/all", controllers.AllLeads)
 
 }

@@ -12,5 +12,3 @@ type Lead struct {
 	Designations string `json:"designation"`
 	Mobile       string `json:"mobile"`
 }
-
-// clientName, Company, Email, Domain, ReportTitle, Comments, Designations, contactNo.
