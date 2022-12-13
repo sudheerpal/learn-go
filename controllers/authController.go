@@ -23,11 +23,24 @@ func Register(c *fiber.Ctx) error {
 		return err
 	}
 
+	var userEmailIfUnique models.User
+	database.DB.Where("email = ?", data["email"]).First(&userEmailIfUnique)
+
+	if userEmailIfUnique.Id != 0 {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"message": "Email already exist in record",
+		})
+	}
+
 	password, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
 	user := models.User{
-		Name:     data["name"],
-		Email:    data["email"],
-		Password: password,
+		Name:       data["name"],
+		Email:      data["email"],
+		Mobile:     data["mobile"],
+		Department: data["department"],
+		Role:       data["role"],
+		Password:   password,
 	}
 	database.DB.Create(&user)
 	return c.JSON(user)
